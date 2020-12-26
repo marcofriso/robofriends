@@ -1,19 +1,32 @@
 version: 2.1
 jobs:
-  bobby:
+  build:
     docker:
-      - image: znck/pnpm:latest
+      - image: ianwalter/pnpm:latest
     steps:
       - checkout
-      - run: echo "A first hello"
-  sally:
+      - run: echo "pnpm installing"
+      - run: pnpm install
+      - run: CI=true pnpm run build
+  test:
     docker:
-      - image: znck/pnpm:latest
+      - image: ianwalter/pnpm:latest
     steps:
       - checkout
-      - run: echo "Double trouble"
+      - run: echo "testing stuff"
+      - run: pnpm install
+      - run: pnpm test -- --coverage --updateSnapshot
+  hithere:
+    docker:
+      - image: ianwalter/pnpm:latest
+    steps:
+      - checkout
+      - run: echo "helllooooo!"
 workflows:
-  bobby_sally:
+  build_test_and_lint:
     jobs:
-      - bobby
-      - sally
+      - build
+      - hithere
+      - test:
+          requires:
+            - hithere
